@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -24,10 +25,10 @@ namespace Gameplay.Scripts
             if (!_isLoaded)
                 return;
 
-            if (!CheckForTarget(out Monster monster))
+            if (!CheckForTarget(out ITarget target))
                 return;
             
-            Shoot(monster);
+            Shoot(target);
             _isLoaded = false;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -36,13 +37,13 @@ namespace Gameplay.Scripts
             _isLoaded = true;
         }
         
-        private bool CheckForTarget(out Monster target)
+        private bool CheckForTarget(out ITarget target)
         {
             target = null;
             
-            foreach (var monster in FindObjectsOfType<Monster>())
+            foreach (var monster in FindObjectsOfType<Monster>().ToList().Cast<ITarget>())
             {
-                if (Vector3.Distance(transform.position, monster.transform.position) <= range)
+                if (Vector3.Distance(transform.position, monster.Pose.position) <= range)
                 {
                     target = monster;
                     return true;
@@ -53,7 +54,7 @@ namespace Gameplay.Scripts
         }
         
 
-        protected virtual void Shoot(Monster target) {}
+        protected virtual void Shoot(ITarget target) {}
 
         private void OnDestroy()
         {

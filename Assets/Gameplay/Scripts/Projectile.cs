@@ -1,4 +1,5 @@
 using System;
+using R3;
 using UnityEngine;
 
 namespace Gameplay.Scripts
@@ -9,12 +10,15 @@ namespace Gameplay.Scripts
         [SerializeField] private int _damage = 10;
         [SerializeField] private float _lifeTime = 3f;
 
-        public Action Destroyed;
+        public Observable<Unit> Destroyed => _destroyed;
+        private Subject<Unit> _destroyed = new();
+        
         private float _currentLifeTime;
 
         private void OnEnable()
         {
             _currentLifeTime = _lifeTime;
+            _destroyed = new Subject<Unit>();
         } 
 
         private void Update()
@@ -32,10 +36,10 @@ namespace Gameplay.Scripts
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.TryGetComponent(out Monster monster))
+            if (!other.TryGetComponent(out ITarget target))
                 return;
 
-            monster.ApplyDamage(_damage);
+            target.ApplyDamage(_damage);
             
             Destroy();
         }
@@ -44,8 +48,7 @@ namespace Gameplay.Scripts
         
         private void Destroy()
         {
-            Destroyed?.Invoke();
-            Destroyed = null;
+            _destroyed.OnNext(Unit.Default);
         }
     }
 }

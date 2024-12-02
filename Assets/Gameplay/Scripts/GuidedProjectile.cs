@@ -2,7 +2,8 @@
 using Gameplay.Scripts;
 
 public class GuidedProjectile : Projectile {
-	public GameObject m_target;
+	
+	public ITarget m_target;
 
 	private Pool<GuidedProjectile> _pool;
 
@@ -13,7 +14,7 @@ public class GuidedProjectile : Projectile {
 			return;
 		}
 
-		var translation = m_target.transform.position - transform.position;
+		var translation = m_target.Pose.position - transform.position;
 		if (translation.magnitude > speed) {
 			translation = translation.normalized * speed;
 		}

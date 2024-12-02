@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using Gameplay.Scripts;
+using UnityEngine;
 
-public class Monster : MonoBehaviour {
+public class Monster : MonoBehaviour, ITarget
+{
 
 	public GameObject m_moveTarget;
 	public float m_speed = 0.1f;
@@ -8,6 +10,8 @@ public class Monster : MonoBehaviour {
 	const float m_reachDistance = 0.3f;
 
 	public int m_hp;
+
+	public Pose Pose => new Pose(transform.position, transform.rotation);
 
 	void Start() {
 		m_hp = m_maxHP;

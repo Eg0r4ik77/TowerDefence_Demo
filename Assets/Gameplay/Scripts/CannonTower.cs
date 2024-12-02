@@ -1,22 +1,29 @@
-﻿using Gameplay.Scripts;
+﻿using System;
+using Gameplay.Scripts;
+using R3;
 
-public class CannonTower : Tower
+public class CannonTower : Tower, IDisposable
 {
 	private Pool<CannonProjectile> _projectilesPool;
+	private IDisposable _disposable;
 
 	private void Start()
 	{
-		_projectilesPool = new(projectilePrefab as CannonProjectile, 3);
+		_projectilesPool = new Pool<CannonProjectile>(projectilePrefab as CannonProjectile, 3);
 	}
-
 	
-	protected override void Shoot(Monster target)
+	protected override void Shoot(ITarget target)
 	{
 		var projectile = _projectilesPool.Get();
 		
 		projectile.transform.position = shootPoint.position;
 		projectile.transform.rotation = shootPoint.rotation;
 
-		projectile.Destroyed += () => _projectilesPool.Release(projectile);
+		_disposable = projectile.Destroyed.Subscribe(_ => _projectilesPool.Release(projectile));
+	}
+	
+	public void Dispose()
+	{
+		_disposable?.Dispose();
 	}
 }
