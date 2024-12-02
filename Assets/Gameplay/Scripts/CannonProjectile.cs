@@ -1,24 +1,12 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Gameplay.Scripts;
 
-public class CannonProjectile : MonoBehaviour {
-	public float m_speed = 0.2f;
-	public int m_damage = 10;
+public class CannonProjectile : Projectile {
 
-	void Update () {
-		var translation = transform.forward * m_speed;
+	private Pool<CannonProjectile> _pool;
+
+	protected override void Translate()
+	{
+		var translation = transform.forward * speed;
 		transform.Translate (translation);
-	}
-
-	void OnTriggerEnter(Collider other) {
-		var monster = other.gameObject.GetComponent<Monster> ();
-		if (monster == null)
-			return;
-
-		monster.m_hp -= m_damage;
-		if (monster.m_hp <= 0) {
-			Destroy (monster.gameObject);
-		}
-		Destroy (gameObject);
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class Monster : MonoBehaviour {
 
@@ -28,5 +27,13 @@ public class Monster : MonoBehaviour {
 			translation = translation.normalized * m_speed;
 		}
 		transform.Translate (translation);
+	}
+
+	public void ApplyDamage(int damage)
+	{
+		m_hp -= damage;
+		
+		if(m_hp <= 0)
+			Destroy(gameObject); // пул???
 	}
 }
