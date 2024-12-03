@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay.Scripts
 {
-    public class Projectile : MonoBehaviour
+    public abstract class Projectile : MonoBehaviour
     {
         [SerializeField] protected float speed = 0.2f;
         [SerializeField] private int _damage = 10;
@@ -13,24 +13,20 @@ namespace Gameplay.Scripts
         public Observable<Unit> Destroyed => _destroyed;
         private Subject<Unit> _destroyed = new();
         
-        private float _currentLifeTime;
+        private IDisposable _disposable;
 
+        protected abstract void Translate();
+        
         private void OnEnable()
         {
-            _currentLifeTime = _lifeTime;
             _destroyed = new Subject<Unit>();
-        } 
+            _disposable = Observable
+                .Timer(TimeSpan.FromSeconds(_lifeTime))
+                .Subscribe(_ => Destroy());
+        }
 
         private void Update()
         {
-            _currentLifeTime -= Time.deltaTime;
-            
-            if (_currentLifeTime <= 0)
-            {
-                Destroy();
-                return;
-            }
-            
             Translate();
         }
 
@@ -43,12 +39,11 @@ namespace Gameplay.Scripts
             
             Destroy();
         }
-
-        protected virtual void Translate(){}
         
         private void Destroy()
         {
-            _destroyed.OnNext(Unit.Default);
+            _destroyed?.OnNext(Unit.Default);
+            _disposable?.Dispose();
         }
     }
 }

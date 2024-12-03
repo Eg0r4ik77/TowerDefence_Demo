@@ -1,23 +1,29 @@
-﻿using UnityEngine;
-using Gameplay.Scripts;
-
-public class GuidedProjectile : Projectile {
-	
-	public ITarget m_target;
-
-	private Pool<GuidedProjectile> _pool;
-
-	protected override void Translate()
+﻿namespace Gameplay.Scripts
+{
+	public class GuidedProjectile : Projectile
 	{
-		if (m_target == null) {
-			Destroy (gameObject);
-			return;
-		}
+		private ITarget _target;
 
-		var translation = m_target.Pose.position - transform.position;
-		if (translation.magnitude > speed) {
-			translation = translation.normalized * speed;
+		public void SetTarget(ITarget target)
+		{
+			_target = target;
 		}
-		transform.Translate (translation);
+	
+		protected override void Translate()
+		{
+			var translation = transform.forward * speed;
+			
+			if (_target != null)
+			{
+				translation = _target.Position - transform.position;
+				transform.LookAt(_target.Position);
+			}
+		
+			if (translation.magnitude > speed) {
+				translation = translation.normalized * speed;
+			}
+		
+			transform.Translate (translation);
+		}
 	}
 }

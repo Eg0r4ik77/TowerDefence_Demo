@@ -5,15 +5,16 @@ using UnityEngine;
 
 namespace Gameplay.Scripts
 {
-    public class Tower : MonoBehaviour
+    public abstract class Tower : MonoBehaviour
     {
         [SerializeField] protected float shootTimeInterval = 0.5f;
         [SerializeField] protected float range = 4f;
-        [SerializeField] protected Projectile projectilePrefab;
         [SerializeField] protected Transform shootPoint;
         
         private bool _isLoaded = true;
         private CancellationTokenSource _cancellationTokenSource;
+
+        protected abstract void Shoot(ITarget target);
         
         private void Update()
         {
@@ -22,10 +23,7 @@ namespace Gameplay.Scripts
 
         private async void TryShoot()
         {
-            if (!_isLoaded)
-                return;
-
-            if (!CheckForTarget(out ITarget target))
+            if (!_isLoaded || !CheckForTarget(out ITarget target))
                 return;
             
             Shoot(target);
@@ -41,9 +39,9 @@ namespace Gameplay.Scripts
         {
             target = null;
             
-            foreach (var monster in FindObjectsOfType<Monster>().ToList().Cast<ITarget>())
+            foreach (var monster in FindObjectsOfType<Monster>().ToList().Where(m => m.isActiveAndEnabled).Cast<ITarget>())
             {
-                if (Vector3.Distance(transform.position, monster.Pose.position) <= range)
+                if (monster != null && Vector3.Distance(transform.position, monster.Position) <= range)
                 {
                     target = monster;
                     return true;
@@ -52,9 +50,6 @@ namespace Gameplay.Scripts
 
             return false;
         }
-        
-
-        protected virtual void Shoot(ITarget target) {}
 
         private void OnDestroy()
         {

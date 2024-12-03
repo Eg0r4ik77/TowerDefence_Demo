@@ -11,7 +11,7 @@ public class Monster : MonoBehaviour, ITarget
 
 	public int m_hp;
 
-	public Pose Pose => new Pose(transform.position, transform.rotation);
+	public Vector3 Position => transform.position;
 
 	void Start() {
 		m_hp = m_maxHP;
