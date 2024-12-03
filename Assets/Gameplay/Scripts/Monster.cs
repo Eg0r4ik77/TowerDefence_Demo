@@ -1,43 +1,63 @@
-﻿using Gameplay.Scripts;
+﻿using R3;
 using UnityEngine;
 
-public class Monster : MonoBehaviour, ITarget
+namespace Gameplay.Scripts
 {
-
-	public GameObject m_moveTarget;
-	public float m_speed = 0.1f;
-	public int m_maxHP = 30;
-	const float m_reachDistance = 0.3f;
-
-	public int m_hp;
-
-	public Vector3 Position => transform.position;
-
-	void Start() {
-		m_hp = m_maxHP;
-	}
-
-	void Update () {
-		if (m_moveTarget == null)
-			return;
-		
-		if (Vector3.Distance (transform.position, m_moveTarget.transform.position) <= m_reachDistance) {
-			Destroy (gameObject);
-			return;
-		}
-
-		var translation = m_moveTarget.transform.position - transform.position;
-		if (translation.magnitude > m_speed) {
-			translation = translation.normalized * m_speed;
-		}
-		transform.Translate (translation);
-	}
-
-	public void ApplyDamage(int damage)
+	public class Monster : MonoBehaviour, ITarget
 	{
-		m_hp -= damage;
+		[SerializeField] private Transform _bottomPoint;
+		[SerializeField] private float _speed = 10f;
+		[SerializeField] private int _maxHealth = 30;
+		[SerializeField] private float _reachDistance = 0.3f;
+	
+		public Observable<Unit> Died => _died;
+		private Subject<Unit> _died = new();
+	
+		private Vector3 _moveTargetPosition;
+		private int _currentHealth;
+
+		public Vector3 Position
+		{
+			get => transform.position;
+			set => transform.position = value - Vector3.up * _bottomPoint.localPosition.y;
+		}
+
+		public void SetMoveTarget(Vector3 moveTargetPosition)
+		{
+			_moveTargetPosition = moveTargetPosition;
+		}
 		
-		if(m_hp <= 0)
-			Destroy(gameObject); // пул???
+		public void ApplyDamage(int damage)
+		{
+			_currentHealth -= damage;
+		
+			if(_currentHealth <= 0)
+				Die();
+		}
+	
+		private void OnEnable()
+		{
+			_currentHealth = _maxHealth;
+			_died = new Subject<Unit>();
+		}
+
+		private void Update () 
+		{
+			if (Vector3.Distance (_bottomPoint.position, _moveTargetPosition) <= _reachDistance) 
+			{
+				Die();
+				return;
+			}
+
+			var direction = (_moveTargetPosition - _bottomPoint.position).normalized;
+			var translation = direction * (_speed * Time.deltaTime);
+		
+			transform.Translate (translation);
+		}
+
+		private void Die()
+		{
+			_died.OnNext(Unit.Default);	
+		}
 	}
 }

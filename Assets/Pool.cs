@@ -7,10 +7,10 @@ using Object = UnityEngine.Object;
 
 public class Pool<T> : IObjectPool<T>, IDisposable where T : Component
 {
-    protected int Count => objects.Count;
-    protected T this[int index] => objects.ElementAt(index);
-        
-    protected readonly HashSet<T> objects;
+    private int Count => objects.Count;
+    private T this[int index] => objects.ElementAt(index);
+
+    private readonly HashSet<T> objects;
     private readonly ObjectPool<T> _objectPool;
 
     private readonly Transform _parent;
@@ -38,17 +38,17 @@ public class Pool<T> : IObjectPool<T>, IDisposable where T : Component
         _objectPool.Clear();
     }
 
-    public virtual T Get()
+    public T Get()
     {
         return _objectPool.Get();
     }
 
-    public virtual PooledObject<T> Get(out T behaviour)
+    public PooledObject<T> Get(out T behaviour)
     {
         return _objectPool.Get(out behaviour);
     }
 
-    public virtual void Release(T behaviour)
+    public void Release(T behaviour)
     {
         _objectPool.Release(behaviour);
     }

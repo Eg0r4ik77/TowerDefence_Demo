@@ -6,7 +6,7 @@ namespace Gameplay.Scripts
 {
     public abstract class Projectile : MonoBehaviour
     {
-        [SerializeField] protected float speed = 0.2f;
+        [SerializeField] protected float speed = 20f;
         [SerializeField] private int _damage = 10;
         [SerializeField] private float _lifeTime = 3f;
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using R3;
 using UnityEngine;
 
@@ -11,11 +12,12 @@ namespace Gameplay.Scripts
         [SerializeField] private int _maxProjectilesCount = 3;
 
         private Pool<TProjectile> _projectilesPool;
-        private CompositeDisposable _compositeDisposable;
+        private Dictionary<TProjectile, IDisposable> _disposables;
 	
         public void Dispose()
         {
-            _compositeDisposable?.Dispose();
+            foreach (var disposable in _disposables.Values)
+                disposable.Dispose();
         }
         
         protected abstract void InitializeProjectile(TProjectile projectile, ITarget target);
@@ -26,13 +28,14 @@ namespace Gameplay.Scripts
             InitializeProjectile(projectile, target);
             
             var disposable = projectile.Destroyed.Subscribe(_ => _projectilesPool.Release(projectile));
-            _compositeDisposable.Add(disposable);
+            
+            _disposables.TryAdd(projectile, disposable);
         }
         
         private void Start()
         {
-            _projectilesPool = new Pool<TProjectile>(_projectilePrefab, _maxProjectilesCount);
-            _compositeDisposable = new CompositeDisposable();
+            _projectilesPool = new Pool<TProjectile>(_projectilePrefab, transform, _maxProjectilesCount);
+            _disposables = new Dictionary<TProjectile, IDisposable>();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Gameplay.Scripts
+﻿using UnityEngine;
+
+namespace Gameplay.Scripts
 {
 	public class GuidedProjectile : Projectile
 	{
@@ -11,17 +13,15 @@
 	
 		protected override void Translate()
 		{
-			var translation = transform.forward * speed;
+			var direction = transform.forward;
 			
 			if (_target != null)
 			{
-				translation = _target.Position - transform.position;
+				direction = (_target.Position - transform.position).normalized;
 				transform.LookAt(_target.Position);
 			}
-		
-			if (translation.magnitude > speed) {
-				translation = translation.normalized * speed;
-			}
+
+			var translation = direction * (speed * Time.deltaTime);
 		
 			transform.Translate (translation);
 		}
