@@ -3,19 +3,19 @@ using UnityEngine;
 
 namespace Gameplay.Scripts
 {
-	public class Monster : MonoBehaviour, ITarget
+	public class Monster : MonoBehaviour, ITarget, IPoolObject
 	{
 		[SerializeField] private Transform _bottomPoint;
 		[SerializeField] private float _speed = 10f;
 		[SerializeField] private int _maxHealth = 30;
 		[SerializeField] private float _reachDistance = 0.3f;
-	
-		public Observable<Unit> Died => _died;
-		private Subject<Unit> _died = new();
-	
+
+		private readonly Subject<Unit> _died = new();
 		private Vector3 _moveTargetPosition;
 		private int _currentHealth;
 
+		public Observable<Unit> Released => _died;
+		
 		public Vector3 Position
 		{
 			get => transform.position;
@@ -34,11 +34,10 @@ namespace Gameplay.Scripts
 			if(_currentHealth <= 0)
 				Die();
 		}
-	
-		private void OnEnable()
+		
+		public void Reset()
 		{
 			_currentHealth = _maxHealth;
-			_died = new Subject<Unit>();
 		}
 
 		private void Update () 

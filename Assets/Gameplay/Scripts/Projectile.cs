@@ -4,27 +4,26 @@ using UnityEngine;
 
 namespace Gameplay.Scripts
 {
-    public abstract class Projectile : MonoBehaviour
+    public abstract class Projectile : MonoBehaviour, IPoolObject
     {
         [SerializeField] protected float speed = 20f;
         [SerializeField] private int _damage = 10;
         [SerializeField] private float _lifeTime = 3f;
 
-        public Observable<Unit> Destroyed => _destroyed;
-        private Subject<Unit> _destroyed = new();
-        
-        private IDisposable _disposable;
+        private readonly Subject<Unit> _destroyed = new();
+        private IDisposable _lifetimeDisposable;
 
-        protected abstract void Translate();
+        public Observable<Unit> Released => _destroyed;
         
-        private void OnEnable()
+        protected abstract void Translate();
+
+        public void Reset()
         {
-            _destroyed = new Subject<Unit>();
-            _disposable = Observable
+            _lifetimeDisposable = Observable
                 .Timer(TimeSpan.FromSeconds(_lifeTime))
                 .Subscribe(_ => Destroy());
         }
-
+        
         private void Update()
         {
             Translate();
@@ -43,7 +42,7 @@ namespace Gameplay.Scripts
         private void Destroy()
         {
             _destroyed?.OnNext(Unit.Default);
-            _disposable?.Dispose();
+            _lifetimeDisposable?.Dispose();
         }
     }
 }

@@ -1,41 +1,29 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Gameplay;
+using R3;
 using UnityEngine;
 using UnityEngine.Pool;
 using Object = UnityEngine.Object;
 
-public class Pool<T> : IObjectPool<T>, IDisposable where T : Component
+public class Pool<T> : IObjectPool<T>, IDisposable where T : Component, IPoolObject
 {
-    private int Count => objects.Count;
-    private T this[int index] => objects.ElementAt(index);
-
-    private readonly HashSet<T> objects;
     private readonly ObjectPool<T> _objectPool;
-
     private readonly Transform _parent;
     private readonly T _prefab;
-
-    public Pool(T prefab, int maxCount = 10)
+    private readonly Dictionary<T, IDisposable> _releaseDisposables = new();
+    
+    public int CountInactive => _objectPool.CountInactive;
+    
+    public Pool(T prefab, Transform parent, int max = 10) : this(prefab, max)
     {
-        _prefab = prefab;
-
-        objects = new HashSet<T>();
-        _objectPool = new ObjectPool<T>(Create, OnGet, OnRelease, OnDestroy, true, 0, maxCount);
-    }
-
-    public Pool(T prefab, Transform parent, int max = 10)
-    {
-        _prefab = prefab;
         _parent = parent;
-
-        objects = new HashSet<T>();
-        _objectPool = new ObjectPool<T>(Create, OnGet, OnRelease, OnDestroy, true, 0, max);
     }
 
-    public void Dispose()
+    private Pool(T prefab, int maxCount = 10)
     {
-        _objectPool.Clear();
+        _prefab = prefab;
+        _objectPool = new ObjectPool<T>(Create, OnGet, OnRelease, OnDestroy, true, 0, maxCount);
     }
 
     public T Get()
@@ -55,35 +43,55 @@ public class Pool<T> : IObjectPool<T>, IDisposable where T : Component
 
     public void Clear()
     {
-        objects.Clear();
         _objectPool.Clear();
+        ClearDisposables();
     }
-
-    private void OnDestroy(T behaviour)
+    
+    public void Dispose()
     {
-        objects.Remove(behaviour);
-        Object.Destroy(behaviour);
-    }
-
-    private void OnRelease(T behaviour)
-    {
-        objects.Remove(behaviour);
-        behaviour.gameObject.SetActive(false);
-    }
-
-    private void OnGet(T behaviour)
-    {
-        objects.Add(behaviour);
-        behaviour.gameObject.SetActive(true);
+        Clear();
     }
 
     private T Create()
     {
         var behaviour = Object.Instantiate(_prefab, _parent);
+        
+        behaviour.Reset();
         behaviour.gameObject.SetActive(true);
-
+        
+        var disposable = behaviour.Released.Subscribe(_ => Release(behaviour));
+        _releaseDisposables.TryAdd(behaviour, disposable);
+        
         return behaviour;
     }
+    
+    private void OnGet(T behaviour)
+    {
+        behaviour.Reset();
+        behaviour.gameObject.SetActive(true);
+    }
 
-    public int CountInactive => _objectPool.CountInactive;
+    private void OnRelease(T behaviour)
+    {
+        behaviour.gameObject.SetActive(false);
+    }
+    
+    private void OnDestroy(T behaviour)
+    {
+        if (_releaseDisposables.TryGetValue(behaviour, out var disposable))
+        {
+            disposable.Dispose();
+            _releaseDisposables.Remove(behaviour);
+        }
+        
+        Object.Destroy(behaviour);
+    }
+
+    private void ClearDisposables()
+    {
+        foreach (var disposable in _releaseDisposables.Values)
+            disposable.Dispose();
+        
+        _releaseDisposables.Clear();
+    }
 }

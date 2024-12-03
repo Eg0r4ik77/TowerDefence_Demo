@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using R3;
 using UnityEngine;
+using VContainer;
 
 namespace Gameplay.Scripts
 {
@@ -16,14 +16,18 @@ namespace Gameplay.Scripts
 		[SerializeField] private Transform _moveTarget;
 	
 		private Pool<Monster> _monsterPool;
-		
+		private ISceneContext _sceneContext;
 		private IDisposable _spawnDisposable;
-		private Dictionary<ITarget, IDisposable> _deathDisposables;
-	
+
+		[Inject]
+		private void Construct(ISceneContext sceneContext)
+		{
+			_sceneContext = sceneContext;
+		}
+		
 		private void Start()
 		{
 			_monsterPool = new Pool<Monster>(_monsterPrefab, transform, _maxMonsterCount);
-			_deathDisposables = new Dictionary<ITarget, IDisposable>();
 			_spawnDisposable = Observable.Interval(TimeSpan.FromSeconds(_interval))
 				.Subscribe(_ => SpawnMonster())
 				.AddTo(this);
@@ -34,26 +38,21 @@ namespace Gameplay.Scripts
 		private void OnDestroy()
 		{
 			_spawnDisposable?.Dispose();
-			
-			foreach (var disposable in _deathDisposables.Values)
-				disposable.Dispose();
 		}
 		
 		private void SpawnMonster()
 		{
 			var monster = SpawnEnemy(_monsterPool);
 			monster.SetMoveTarget(_moveTarget.position);
+			_sceneContext.Targets.Add(monster);
 		}
 		
-		private T SpawnEnemy<T>(Pool<T> pool) where T : Component, ITarget
+		private T SpawnEnemy<T>(Pool<T> pool) where T : Component, IPoolObject, ITarget
 		{
 			ITarget enemy = pool.Get();
-		
+
 			enemy.Position = _spawnPoint.position;
 			
-			var disposable = enemy.Died.Subscribe(_ => pool.Release((T)enemy));
-			_deathDisposables.TryAdd(enemy, disposable);
-		
 			return (T)enemy;
 		}
 	}
