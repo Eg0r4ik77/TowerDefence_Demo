@@ -14,6 +14,7 @@ namespace Gameplay.Scripts
 		private Vector3 _moveTargetPosition;
 		private int _currentHealth;
 
+		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
 		
 		public Vector3 Position
@@ -56,6 +57,7 @@ namespace Gameplay.Scripts
 
 		private void Die()
 		{
+			SceneContext.UnregisterEntity(this);
 			_died.OnNext(Unit.Default);	
 		}
 	}

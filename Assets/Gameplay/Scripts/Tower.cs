@@ -46,8 +46,9 @@ namespace Gameplay.Scripts
         private bool CheckForTarget(out ITarget target)
         {
             target = null;
+            var sceneTargets = _sceneContext.GetEntities<ITarget>();
             
-            foreach (var monster in _sceneContext.Targets)
+            foreach (var monster in sceneTargets)
             {
                 if (monster != null && Vector3.Distance(transform.position, monster.Position) <= range)
                 {

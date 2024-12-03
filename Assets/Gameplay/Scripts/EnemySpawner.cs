@@ -44,7 +44,7 @@ namespace Gameplay.Scripts
 		{
 			var monster = SpawnEnemy(_monsterPool);
 			monster.SetMoveTarget(_moveTarget.position);
-			_sceneContext.Targets.Add(monster);
+			_sceneContext.RegisterEntity(monster);
 		}
 		
 		private T SpawnEnemy<T>(Pool<T> pool) where T : Component, IPoolObject, ITarget
@@ -52,6 +52,7 @@ namespace Gameplay.Scripts
 			ITarget enemy = pool.Get();
 
 			enemy.Position = _spawnPoint.position;
+			enemy.SceneContext = _sceneContext;
 			
 			return (T)enemy;
 		}
