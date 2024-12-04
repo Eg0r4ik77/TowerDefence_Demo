@@ -23,7 +23,7 @@ namespace Gameplay.Scripts
 
 			var translation = direction * (speed * Time.deltaTime);
 		
-			transform.Translate (translation);
+			transform.Translate (translation, Space.World);
 		}
 	}
 }

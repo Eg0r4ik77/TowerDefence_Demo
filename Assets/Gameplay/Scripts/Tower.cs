@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -17,6 +16,8 @@ namespace Gameplay.Scripts
         private bool _isLoaded = true;
 
         protected abstract void Shoot(ITarget target);
+
+        protected virtual bool ReadyToShoot(ITarget target) => _isLoaded;
         
         [Inject]
         private void Construct(ISceneContext sceneContext)
@@ -31,7 +32,10 @@ namespace Gameplay.Scripts
 
         private async void TryShoot()
         {
-            if (!_isLoaded || !CheckForTarget(out ITarget target))
+            if (!CheckForTarget(out ITarget target))
+                return;
+            
+            if (!ReadyToShoot(target))
                 return;
             
             Shoot(target);

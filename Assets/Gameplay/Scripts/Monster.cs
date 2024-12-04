@@ -14,6 +14,7 @@ namespace Gameplay.Scripts
 		private Vector3 _moveTargetPosition;
 		private int _currentHealth;
 
+		public float Speed => _speed;
 		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
 		
@@ -31,7 +32,6 @@ namespace Gameplay.Scripts
 		public void ApplyDamage(int damage)
 		{
 			_currentHealth -= damage;
-		
 			if(_currentHealth <= 0)
 				Die();
 		}

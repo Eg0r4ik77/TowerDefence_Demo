@@ -12,6 +12,9 @@ namespace Gameplay.Scripts
 
         private readonly Subject<Unit> _destroyed = new();
         private IDisposable _lifetimeDisposable;
+        
+        
+        public float Speed => speed;
 
         public Observable<Unit> Released => _destroyed;
         

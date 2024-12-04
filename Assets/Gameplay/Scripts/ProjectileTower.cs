@@ -4,7 +4,7 @@ namespace Gameplay.Scripts
 {
     public abstract class ProjectileTower<TProjectile> : Tower where TProjectile : Projectile
     {
-        [SerializeField] private TProjectile _projectilePrefab;
+        [SerializeField] protected TProjectile _projectilePrefab;
         [SerializeField] private int _maxProjectilesCount = 3;
 
         private Pool<TProjectile> _projectilesPool;
