@@ -1,6 +1,6 @@
 using R3;
 
-namespace Gameplay
+namespace Infrastructure
 {
     public interface IPoolObject
     {
