@@ -11,10 +11,12 @@ namespace Gameplay.Towers
 {
     public abstract class Tower : MonoBehaviour
     {
-        [SerializeField] protected float shootTimeInterval = 0.5f;
-        [SerializeField] protected float range = 4f;
+        [SerializeField] protected TowerData data;
         [SerializeField] protected Transform shootPoint;
-        [SerializeField] private float _checkForTargetTimeInterval = 0.3f;
+        
+        [SerializeField] protected float shootTimeInterval;
+        [SerializeField] protected float range;
+        [SerializeField] private float _checkForTargetTimeInterval;
         
         private ISceneContext _sceneContext;
         private CancellationTokenSource _cancellationTokenSource;
@@ -25,11 +27,26 @@ namespace Gameplay.Towers
         protected abstract void Shoot(ITarget target);
 
         protected virtual bool ReadyToShoot(ITarget target) => _isLoaded;
+
+        protected virtual void Initialize()
+        {
+            if (data == null)
+                return;
+            
+            shootTimeInterval = data.ShootTimeInterval;
+            range = data.Range;
+            _checkForTargetTimeInterval = data.CheckForTargetTimeInterval;
+        }
         
         [Inject]
         private void Construct(ISceneContext sceneContext)
         {
             _sceneContext = sceneContext;
+        }
+
+        private void Awake()
+        {
+            Initialize();
         }
 
         private void OnEnable()

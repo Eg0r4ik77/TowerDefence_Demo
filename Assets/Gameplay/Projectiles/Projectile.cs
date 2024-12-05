@@ -8,9 +8,11 @@ namespace Gameplay.Projectiles
 {
     public abstract class Projectile : MonoBehaviour, IPoolObject
     {
-        [SerializeField] protected float speed = 20f;
-        [SerializeField] private int _damage = 10;
-        [SerializeField] private float _lifeTime = 3f;
+        [SerializeField] private ProjectileData _data;
+        
+        [SerializeField] protected float speed;
+        [SerializeField] private int _damage;
+        [SerializeField] private float _lifeTime;
 
         private readonly Subject<Unit> _destroyed = new();
         private IDisposable _lifetimeDisposable;
@@ -27,7 +29,17 @@ namespace Gameplay.Projectiles
                 .Timer(TimeSpan.FromSeconds(_lifeTime))
                 .Subscribe(_ => Destroy());
         }
-        
+
+        private void Awake()
+        {
+            if (_data == null)
+                return;
+            
+            speed = _data.Speed;
+            _damage = _data.Damage;
+            _lifeTime = _data.LifeTime;
+        }
+
         private void Update()
         {
             Translate();
@@ -40,6 +52,11 @@ namespace Gameplay.Projectiles
 
             target.ApplyDamage(_damage);
             Destroy();
+        }
+
+        private void Initialize()
+        {
+            
         }
         
         private void Destroy()

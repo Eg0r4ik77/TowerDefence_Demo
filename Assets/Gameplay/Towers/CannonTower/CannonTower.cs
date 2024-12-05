@@ -10,7 +10,20 @@ namespace Gameplay.Towers.CannonTower
 		[SerializeField] private float _minimumAngleDifference;
 		
 		private Vector3? _predictedPosition;
-		
+
+		protected override void Initialize()
+		{
+			base.Initialize();
+
+			var cannonTowerData = data as CannonTowerData;
+
+			if (cannonTowerData == null)
+				return;
+
+			_rotationSpeed = cannonTowerData.RotationSpeed;
+			_minimumAngleDifference = cannonTowerData.MinimumAngleDifference;
+		}
+
 		protected override bool ReadyToShoot(ITarget target)
 		{
 			RotateToTarget(target);
@@ -26,10 +39,7 @@ namespace Gameplay.Towers.CannonTower
 			var angleBetweenCannonAndTarget =
 				Vector3.Angle(adjustedPredictedPosition - shootPoint.position, shootPoint.forward);
 			
-			if (angleBetweenCannonAndTarget > 0 && angleBetweenCannonAndTarget < _minimumAngleDifference)
-				return true;
-			
-			return false;
+			return angleBetweenCannonAndTarget > 0 && angleBetweenCannonAndTarget < _minimumAngleDifference;
 		}
 
 		private Vector3 CalculatePredictedShootPosition(ITarget target)

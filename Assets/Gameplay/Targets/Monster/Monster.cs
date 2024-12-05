@@ -7,10 +7,12 @@ namespace Gameplay.Targets.Monster
 {
 	public class Monster : MonoBehaviour, ITarget, IPoolObject
 	{
+		[SerializeField] private MonsterData _data;
 		[SerializeField] private Transform _bottomPoint;
-		[SerializeField] private float _speed = 10f;
-		[SerializeField] private int _maxHealth = 30;
-		[SerializeField] private float _reachDistance = 0.3f;
+		
+		[SerializeField] private float _speed;
+		[SerializeField] private int _maxHealth;
+		[SerializeField] private float _reachDistance;
 
 		private readonly Subject<Unit> _died = new();
 		private Vector3 _moveTargetPosition;
@@ -25,7 +27,6 @@ namespace Gameplay.Targets.Monster
 		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
 		
-
 		public void SetMoveTarget(Vector3 moveTargetPosition)
 		{
 			_moveTargetPosition = moveTargetPosition;
@@ -42,7 +43,12 @@ namespace Gameplay.Targets.Monster
 		{
 			_currentHealth = _maxHealth;
 		}
-
+		
+		private void Awake()
+		{
+			Initialize();
+		}
+		
 		private void Update () 
 		{
 			if (Vector3.Distance (_bottomPoint.position, _moveTargetPosition) <= _reachDistance) 
@@ -55,6 +61,16 @@ namespace Gameplay.Targets.Monster
 			var translation = direction * (_speed * Time.deltaTime);
 		
 			transform.Translate(translation, Space.World);
+		}
+		
+		private void Initialize()
+		{
+			if(_data == null)
+				return;
+
+			_speed = _data.Speed;
+			_maxHealth = _data.MaxHealth;
+			_reachDistance = _data.ReachDistance;
 		}
 
 		private void Die()
