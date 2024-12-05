@@ -21,7 +21,7 @@ namespace Gameplay.Towers
         private ISceneContext _sceneContext;
         private CancellationTokenSource _cancellationTokenSource;
         
-        private ITarget _target;
+        protected ITarget _target;
         private bool _isLoaded = true;
 
         protected abstract void Shoot(ITarget target);

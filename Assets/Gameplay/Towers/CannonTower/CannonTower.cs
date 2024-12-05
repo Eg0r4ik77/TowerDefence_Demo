@@ -26,10 +26,11 @@ namespace Gameplay.Towers.CannonTower
 
 		protected override bool ReadyToShoot(ITarget target)
 		{
-			RotateToTarget(target);
-			
 			if (!base.ReadyToShoot(target))
+			{
+				RotateTo(target.Position);
 				return false;
+			}
 
 			_predictedPosition = CalculatePredictedShootPosition(target);
 			
@@ -39,7 +40,11 @@ namespace Gameplay.Towers.CannonTower
 			var angleBetweenCannonAndTarget =
 				Vector3.Angle(adjustedPredictedPosition - shootPoint.position, shootPoint.forward);
 			
-			return angleBetweenCannonAndTarget > 0 && angleBetweenCannonAndTarget < _minimumAngleDifference;
+			if (Mathf.Abs(angleBetweenCannonAndTarget) < _minimumAngleDifference)
+				return true;
+			
+			RotateTo(_predictedPosition.Value);
+			return false;
 		}
 
 		private Vector3 CalculatePredictedShootPosition(ITarget target)
@@ -52,20 +57,21 @@ namespace Gameplay.Towers.CannonTower
 			var deltaY = shootPoint.position.y - target.Position.y;
 			var deltaX = shootPoint.position.x - target.Position.x;
 
-			var shootingAngle = Vector3.Angle(shootPoint.up, target.Position - shootPoint.position);
+			var shootingAngle = Vector3.Angle(-shootPoint.up, target.Position - shootPoint.position);
 
 			var sin = Mathf.Sin(shootingAngle * Mathf.Deg2Rad);
 			var cos = Mathf.Cos(shootingAngle * Mathf.Deg2Rad);
 
-			var flightTime = deltaY / (projectileSpeed * cos + g * deltaX / (2 * (targetSpeed - projectileSpeed * sin)));
-			var predictedPosition = target.Position + Vector3.right * (target.Speed * flightTime);
+			var flightTime = deltaY / (projectileSpeed * cos + g * deltaX / (2 * (targetSpeed - projectileSpeed * sin)))
+				+ 2 / (projectileSpeed / Time.deltaTime);
+			var predictedPosition = target.Position + Vector3.left * (target.Speed * flightTime);
 
 			return predictedPosition;
 		}
 
-		private void RotateToTarget(ITarget target)
+		private void RotateTo(Vector3 position)
 		{
-			var targetPosition = target.Position;
+			var targetPosition = position;
 			var direction = (targetPosition - transform.position).normalized;
 			
 			direction.y = 0;
@@ -87,10 +93,11 @@ namespace Gameplay.Towers.CannonTower
 		
 		private void OnDrawGizmos()
 		{
-			if (_predictedPosition == null)
+			if (_target == null)
 				return;
+			var pred = CalculatePredictedShootPosition(_target);
 
-			var adjustedPredictedPosition = _predictedPosition.Value;
+			var adjustedPredictedPosition = pred;
 			adjustedPredictedPosition.y = shootPoint.position.y;
 			
 			Gizmos.DrawLine(shootPoint.position, adjustedPredictedPosition);

@@ -35,8 +35,14 @@ namespace Gameplay.Targets.Monster
 		public void ApplyDamage(int damage)
 		{
 			_currentHealth -= damage;
-			if(_currentHealth <= 0)
+
+			if (_currentHealth <= 0)
+			{
 				Die();
+				return;
+			}
+			
+			print($"DAMAGED! Health: {_currentHealth}");
 		}
 		
 		public void Reset()
