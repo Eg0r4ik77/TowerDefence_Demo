@@ -28,12 +28,6 @@ namespace Gameplay.Towers.CannonTower
 
 		protected override bool ReadyToShoot(ITarget target)
 		{
-			if (!base.ReadyToShoot(target))
-			{
-				RotateTo(target.Position);
-				return false;
-			}
-
 			_predictedPosition = CalculatePredictedShootPosition(target);
 			
 			var adjustedPredictedPosition = _predictedPosition.Value;
@@ -41,12 +35,10 @@ namespace Gameplay.Towers.CannonTower
 
 			var angleBetweenCannonAndTarget =
 				Vector3.Angle(adjustedPredictedPosition - shootPoint.position, shootPoint.forward);
-			
+
 			RotateTo(_predictedPosition.Value);
-			if (Mathf.Abs(angleBetweenCannonAndTarget) < _minimumAngleDifference)
-				return true;
-			
-			return false;
+
+			return angleBetweenCannonAndTarget < _minimumAngleDifference && base.ReadyToShoot(target);
 		}
 
 		private Vector3 CalculatePredictedShootPosition(ITarget target)
@@ -66,7 +58,7 @@ namespace Gameplay.Towers.CannonTower
 
 			var flightTime = deltaY / (projectileSpeed * cos + g * deltaX / (2 * (targetSpeed - projectileSpeed * sin)));
 			
-			var projectileDepartureTime = _cannonLength / (projectileSpeed / Time.fixedDeltaTime);
+			var projectileDepartureTime = _cannonLength / projectileSpeed;
 			flightTime += projectileDepartureTime;
 			
 			var predictedPosition = target.Position + Vector3.left * (target.Speed * flightTime);
@@ -92,21 +84,22 @@ namespace Gameplay.Towers.CannonTower
 			projectile.transform.position = shootPoint.position;
 			projectile.transform.rotation = shootPoint.rotation;
 
-			var shootingAngle = Vector3.Angle(shootPoint.up, target.Position - shootPoint.position);
-			projectile.SetAngle(shootingAngle, _cannonLength);
+			var shootingAngle = Vector3.Angle(-shootPoint.up, _predictedPosition.Value - shootPoint.position);
+			projectile.SetTranslationParameters(shootingAngle, _cannonLength);
 		}
 		
 		private void OnDrawGizmos()
 		{
-			if (_target == null)
+			if (shootTarget == null)
 				return;
-			var pred = CalculatePredictedShootPosition(_target);
+			
+			var predictedPosition = CalculatePredictedShootPosition(shootTarget);
 
-			var adjustedPredictedPosition = pred;
+			var adjustedPredictedPosition = predictedPosition;
 			adjustedPredictedPosition.y = shootPoint.position.y;
 			
 			Gizmos.DrawLine(shootPoint.position, adjustedPredictedPosition);
-			Gizmos.DrawLine(shootPoint.position, shootPoint.position + shootPoint.forward);
+			Gizmos.DrawRay(shootPoint.position, shootPoint.forward * 10);
 		}
 	}
 }

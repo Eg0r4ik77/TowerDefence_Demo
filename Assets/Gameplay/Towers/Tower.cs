@@ -18,10 +18,11 @@ namespace Gameplay.Towers
         [SerializeField] protected float range;
         [SerializeField] private float _checkForTargetTimeInterval;
         
+        protected ITarget shootTarget;
+        
         private ISceneContext _sceneContext;
         private CancellationTokenSource _cancellationTokenSource;
         
-        protected ITarget _target;
         private bool _isLoaded = true;
 
         protected abstract void Shoot(ITarget target);
@@ -64,13 +65,13 @@ namespace Gameplay.Towers
 
         private async void TryShoot()
         {
-            if (_target == null)
+            if (shootTarget == null)
                 return;
             
-            if (!ReadyToShoot(_target))
+            if (!ReadyToShoot(shootTarget))
                 return;
             
-            Shoot(_target);
+            Shoot(shootTarget);
             _isLoaded = false;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -81,14 +82,14 @@ namespace Gameplay.Towers
         
         private void CheckForTarget()
         {
-            _target = null;
+            shootTarget = null;
             var sceneTargets = _sceneContext.GetEntities<ITarget>();
             
             foreach (var monster in sceneTargets)
             {
                 if (monster != null && Vector3.Distance(transform.position, monster.Position) <= range)
                 {
-                    _target = monster;
+                    shootTarget = monster;
                     return;
                 }
             }

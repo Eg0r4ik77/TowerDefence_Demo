@@ -8,12 +8,12 @@ namespace Gameplay.Projectiles.CannonProjectile
 		private float _cannonDistanceLeft;
 		private Vector3 _velocity;
 
-		public void SetAngle(float angle, float cannonLength)
+		public void SetTranslationParameters(float angle, float cannonLength)
 		{
 			_shootAngle = angle;
 			_cannonDistanceLeft = cannonLength;
 			
-			_velocity = (transform.forward * Mathf.Sin(_shootAngle * Mathf.Deg2Rad) +
+			_velocity = (transform.forward * Mathf.Sin(_shootAngle * Mathf.Deg2Rad) -
 			             transform.up * Mathf.Cos(_shootAngle * Mathf.Deg2Rad)) * speed;
 		}
 		
