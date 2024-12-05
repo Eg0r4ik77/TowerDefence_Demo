@@ -60,6 +60,8 @@ namespace Gameplay.System.EnemySpawn
 		private void SpawnMonster()
 		{
 			var monster = SpawnEnemy(_monsterPool);
+
+			monster.transform.rotation = _spawnPoint.rotation;
 			monster.SetMoveTarget(_moveTarget.position);
 			
 			_sceneContext.RegisterEntity(monster);

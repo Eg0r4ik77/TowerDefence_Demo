@@ -61,7 +61,7 @@ namespace Gameplay.Towers.CannonTower
 			var projectileDepartureTime = _cannonLength / projectileSpeed;
 			flightTime += projectileDepartureTime;
 			
-			var predictedPosition = target.Position + Vector3.left * (target.Speed * flightTime);
+			var predictedPosition = target.Position + target.Forward * (target.Speed * flightTime);
 
 			return predictedPosition;
 		}

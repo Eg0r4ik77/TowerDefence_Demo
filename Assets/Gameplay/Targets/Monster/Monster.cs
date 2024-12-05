@@ -23,6 +23,8 @@ namespace Gameplay.Targets.Monster
 			get => transform.position;
 			set => transform.position = value - Vector3.up * _bottomPoint.localPosition.y;
 		}
+
+		public Vector3 Forward => transform.forward;
 		public float Speed => _speed;
 		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
