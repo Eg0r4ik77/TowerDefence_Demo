@@ -1,5 +1,7 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
 using UnityEngine;
 using VContainer;
 
@@ -13,6 +15,8 @@ namespace Gameplay.Scripts
         
         private ISceneContext _sceneContext;
         private CancellationTokenSource _cancellationTokenSource;
+        
+        private ITarget _target;
         private bool _isLoaded = true;
 
         protected abstract void Shoot(ITarget target);
@@ -24,7 +28,15 @@ namespace Gameplay.Scripts
         {
             _sceneContext = sceneContext;
         }
-        
+
+        private void OnEnable()
+        {
+            Observable
+                .Interval(TimeSpan.FromSeconds(0.3))
+                .Subscribe(_ => CheckForTarget())
+                .AddTo(this);
+        }
+
         private void Update()
         {
             TryShoot();
@@ -32,13 +44,13 @@ namespace Gameplay.Scripts
 
         private async void TryShoot()
         {
-            if (!CheckForTarget(out ITarget target))
+            if (_target == null)
                 return;
             
-            if (!ReadyToShoot(target))
+            if (!ReadyToShoot(_target))
                 return;
             
-            Shoot(target);
+            Shoot(_target);
             _isLoaded = false;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -47,21 +59,19 @@ namespace Gameplay.Scripts
             _isLoaded = true;
         }
         
-        private bool CheckForTarget(out ITarget target)
+        private void CheckForTarget()
         {
-            target = null;
+            _target = null;
             var sceneTargets = _sceneContext.GetEntities<ITarget>();
             
             foreach (var monster in sceneTargets)
             {
                 if (monster != null && Vector3.Distance(transform.position, monster.Position) <= range)
                 {
-                    target = monster;
-                    return true;
+                    _target = monster;
+                    return;
                 }
             }
-
-            return false;
         }
 
         private void OnDestroy()

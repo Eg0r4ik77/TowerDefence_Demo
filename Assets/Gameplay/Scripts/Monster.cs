@@ -1,4 +1,5 @@
-﻿using R3;
+﻿using System;
+using R3;
 using UnityEngine;
 
 namespace Gameplay.Scripts
@@ -14,15 +15,15 @@ namespace Gameplay.Scripts
 		private Vector3 _moveTargetPosition;
 		private int _currentHealth;
 
-		public float Speed => _speed;
-		public ISceneContext SceneContext { get; set; }
-		public Observable<Unit> Released => _died;
-		
 		public Vector3 Position
 		{
 			get => transform.position;
 			set => transform.position = value - Vector3.up * _bottomPoint.localPosition.y;
 		}
+		public float Speed => _speed;
+		public ISceneContext SceneContext { get; set; }
+		public Observable<Unit> Released => _died;
+		
 
 		public void SetMoveTarget(Vector3 moveTargetPosition)
 		{
@@ -52,7 +53,7 @@ namespace Gameplay.Scripts
 			var direction = (_moveTargetPosition - _bottomPoint.position).normalized;
 			var translation = direction * (_speed * Time.deltaTime);
 		
-			transform.Translate (translation);
+			transform.Translate(translation, Space.World);
 		}
 
 		private void Die()

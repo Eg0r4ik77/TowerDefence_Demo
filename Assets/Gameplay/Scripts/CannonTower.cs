@@ -5,57 +5,61 @@ namespace Gameplay.Scripts
 	public class CannonTower : ProjectileTower<CannonProjectile>
 	{
 		[SerializeField] private float _rotationSpeed;
-		[SerializeField] private Transform _cannon;
 		[SerializeField] private float _minimumAngleDifference;
+		
+		private Vector3? _predictedPosition;
 		
 		protected override bool ReadyToShoot(ITarget target)
 		{
+			RotateToTarget(target);
+			
 			if (!base.ReadyToShoot(target))
 				return false;
 
-			var vector = GetPredictedShootPosition(target) - _cannon.position;
-			vector.y = _cannon.forward.y;
+			_predictedPosition = CalculatePredictedShootPosition(target);
 			
-			var angleBetweenCannonAndTarget = Vector3.Angle(vector, _cannon.forward);
-			if (angleBetweenCannonAndTarget < _minimumAngleDifference)
+			var adjustedPredictedPosition = _predictedPosition.Value;
+			adjustedPredictedPosition.y = shootPoint.position.y;
+
+			var angleBetweenCannonAndTarget =
+				Vector3.Angle(adjustedPredictedPosition - shootPoint.position, shootPoint.forward);
+			
+			if (angleBetweenCannonAndTarget > 0 && angleBetweenCannonAndTarget < _minimumAngleDifference)
 				return true;
 			
-			RotateToTarget(target);
 			return false;
 		}
 
-		private Vector3 GetPredictedShootPosition(ITarget target)
+		private Vector3 CalculatePredictedShootPosition(ITarget target)
 		{
 			var g = Physics.gravity.y;
 			
-			var vp = _projectilePrefab.Speed;
-			var vt = target.Speed;
+			var projectileSpeed = projectilePrefab.Speed;
+			var targetSpeed = target.Speed;
 
 			var deltaY = shootPoint.position.y - target.Position.y;
 			var deltaX = shootPoint.position.x - target.Position.x;
 
-			var angle = Vector3.Angle(shootPoint.up, target.Position - shootPoint.position);
-			var angleInRadians = angle * Mathf.Deg2Rad;
-			
-			var sin = Mathf.Sin(angleInRadians);
-			var cos = Mathf.Cos(angleInRadians);
+			var shootingAngle = Vector3.Angle(shootPoint.up, target.Position - shootPoint.position);
 
-			var t = deltaY / (vp * cos + g * deltaX / (2 * (vt - vp * sin)));
-			var predictedPosition = target.Position + Vector3.right * (target.Speed * t); // forward!!!
+			var sin = Mathf.Sin(shootingAngle * Mathf.Deg2Rad);
+			var cos = Mathf.Cos(shootingAngle * Mathf.Deg2Rad);
 
-			_predicted = predictedPosition;
+			var flightTime = deltaY / (projectileSpeed * cos + g * deltaX / (2 * (targetSpeed - projectileSpeed * sin)));
+			var predictedPosition = target.Position + Vector3.right * (target.Speed * flightTime);
+
 			return predictedPosition;
 		}
 
-		// перенести в базовый класс?
 		private void RotateToTarget(ITarget target)
 		{
 			var targetPosition = target.Position;
 			var direction = (targetPosition - transform.position).normalized;
+			
 			direction.y = 0;
 
-			Quaternion rotation = Quaternion.LookRotation(direction);
-			float degreesDelta = _rotationSpeed * Time.deltaTime;
+			var rotation = Quaternion.LookRotation(direction);
+			var degreesDelta = _rotationSpeed * Time.deltaTime;
 
 			transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, degreesDelta);
 		}
@@ -64,17 +68,21 @@ namespace Gameplay.Scripts
 		{
 			projectile.transform.position = shootPoint.position;
 			projectile.transform.rotation = shootPoint.rotation;
-			projectile.SetAngle(Vector3.Angle(shootPoint.up, target.Position - shootPoint.position) * Mathf.Deg2Rad);
+
+			var shootingAngle = Vector3.Angle(shootPoint.up, target.Position - shootPoint.position);
+			projectile.SetAngle(shootingAngle);
 		}
-
-		private Vector3? _predicted;
-
+		
 		private void OnDrawGizmos()
 		{
-			if (_predicted == null)
+			if (_predictedPosition == null)
 				return;
+
+			var adjustedPredictedPosition = _predictedPosition.Value;
+			adjustedPredictedPosition.y = shootPoint.position.y;
 			
-			Gizmos.DrawLine(shootPoint.position, _predicted.Value);
+			Gizmos.DrawLine(shootPoint.position, adjustedPredictedPosition);
+			Gizmos.DrawLine(shootPoint.position, shootPoint.position + shootPoint.forward);
 		}
 	}
 }

@@ -4,7 +4,7 @@ namespace Gameplay.Scripts
 {
     public abstract class ProjectileTower<TProjectile> : Tower where TProjectile : Projectile
     {
-        [SerializeField] protected TProjectile _projectilePrefab;
+        [SerializeField] protected TProjectile projectilePrefab;
         [SerializeField] private int _maxProjectilesCount = 3;
 
         private Pool<TProjectile> _projectilesPool;
@@ -19,7 +19,7 @@ namespace Gameplay.Scripts
         
         private void Start()
         {
-            _projectilesPool = new Pool<TProjectile>(_projectilePrefab, transform, _maxProjectilesCount);
+            _projectilesPool = new Pool<TProjectile>(projectilePrefab, transform, _maxProjectilesCount);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Gameplay.Scripts
         private readonly Subject<Unit> _destroyed = new();
         private IDisposable _lifetimeDisposable;
         
-        
         public float Speed => speed;
 
         public Observable<Unit> Released => _destroyed;
@@ -38,14 +37,13 @@ namespace Gameplay.Scripts
                 return;
 
             target.ApplyDamage(_damage);
-            
             Destroy();
         }
         
         private void Destroy()
         {
-            _destroyed?.OnNext(Unit.Default);
             _lifetimeDisposable?.Dispose();
+            _destroyed?.OnNext(Unit.Default);
         }
     }
 }

@@ -56,7 +56,6 @@ public class Pool<T> : IObjectPool<T>, IDisposable where T : Component, IPoolObj
     {
         var behaviour = Object.Instantiate(_prefab, _parent);
         
-        behaviour.Reset();
         behaviour.gameObject.SetActive(true);
         
         var disposable = behaviour.Released.Subscribe(_ => Release(behaviour));
