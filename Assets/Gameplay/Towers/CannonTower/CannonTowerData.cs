@@ -7,5 +7,6 @@ namespace Gameplay.Towers.CannonTower
     {
         [field: SerializeField] public float RotationSpeed { get; private set; }
         [field: SerializeField] public float MinimumAngleDifference { get; private set; }
+        [field: SerializeField] public float CannonLength { get; private set; }
     }
 }

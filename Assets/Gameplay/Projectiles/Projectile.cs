@@ -17,7 +17,7 @@ namespace Gameplay.Projectiles
         private readonly Subject<Unit> _destroyed = new();
         private IDisposable _lifetimeDisposable;
         
-        public float Speed => speed;
+        public float Speed => _data.Speed;
 
         public Observable<Unit> Released => _destroyed;
         

@@ -8,6 +8,7 @@ namespace Gameplay.Towers.CannonTower
 	{
 		[SerializeField] private float _rotationSpeed;
 		[SerializeField] private float _minimumAngleDifference;
+		[SerializeField] private float _cannonLength;
 		
 		private Vector3? _predictedPosition;
 
@@ -22,6 +23,7 @@ namespace Gameplay.Towers.CannonTower
 
 			_rotationSpeed = cannonTowerData.RotationSpeed;
 			_minimumAngleDifference = cannonTowerData.MinimumAngleDifference;
+			_cannonLength = cannonTowerData.CannonLength;
 		}
 
 		protected override bool ReadyToShoot(ITarget target)
@@ -40,10 +42,10 @@ namespace Gameplay.Towers.CannonTower
 			var angleBetweenCannonAndTarget =
 				Vector3.Angle(adjustedPredictedPosition - shootPoint.position, shootPoint.forward);
 			
+			RotateTo(_predictedPosition.Value);
 			if (Mathf.Abs(angleBetweenCannonAndTarget) < _minimumAngleDifference)
 				return true;
 			
-			RotateTo(_predictedPosition.Value);
 			return false;
 		}
 
@@ -62,8 +64,11 @@ namespace Gameplay.Towers.CannonTower
 			var sin = Mathf.Sin(shootingAngle * Mathf.Deg2Rad);
 			var cos = Mathf.Cos(shootingAngle * Mathf.Deg2Rad);
 
-			var flightTime = deltaY / (projectileSpeed * cos + g * deltaX / (2 * (targetSpeed - projectileSpeed * sin)))
-				+ 2 / (projectileSpeed / Time.deltaTime);
+			var flightTime = deltaY / (projectileSpeed * cos + g * deltaX / (2 * (targetSpeed - projectileSpeed * sin)));
+			
+			var projectileDepartureTime = _cannonLength / (projectileSpeed / Time.fixedDeltaTime);
+			flightTime += projectileDepartureTime;
+			
 			var predictedPosition = target.Position + Vector3.left * (target.Speed * flightTime);
 
 			return predictedPosition;
@@ -88,7 +93,7 @@ namespace Gameplay.Towers.CannonTower
 			projectile.transform.rotation = shootPoint.rotation;
 
 			var shootingAngle = Vector3.Angle(shootPoint.up, target.Position - shootPoint.position);
-			projectile.SetAngle(shootingAngle);
+			projectile.SetAngle(shootingAngle, _cannonLength);
 		}
 		
 		private void OnDrawGizmos()
