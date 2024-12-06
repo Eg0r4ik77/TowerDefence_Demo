@@ -20,7 +20,9 @@ namespace Gameplay.Enemies
 		[SerializeField] private float _reachDistance;
 
 		private IEnumerator<Transform> _routeEnumerator;
+		
 		private readonly Subject<Unit> _died = new();
+		private readonly Subject<Unit> _damaged = new();
 		
 		private bool _isFlashing;
 
@@ -39,6 +41,7 @@ namespace Gameplay.Enemies
 		public float Health => _currentHealth;
 		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
+		public Observable<Unit> Damaged => _damaged;
 		
 		public void InitRoute(PointsRoute route)
 		{
@@ -57,6 +60,7 @@ namespace Gameplay.Enemies
 			}
 			
 			Flash();
+			_damaged.OnNext(Unit.Default);
 		}
 		
 		public void Reset()
