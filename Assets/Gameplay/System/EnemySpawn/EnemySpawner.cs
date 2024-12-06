@@ -62,7 +62,7 @@ namespace Gameplay.System.EnemySpawn
 			var monster = SpawnEnemy(_monsterPool);
 
 			monster.transform.rotation = _spawnPoint.rotation;
-			monster.SetRoute(_route);
+			monster.InitRoute(_route);
 			
 			_sceneContext.RegisterEntity(monster);
 		}
