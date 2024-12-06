@@ -11,6 +11,7 @@ namespace Gameplay.Towers.CannonTower
 		[SerializeField] private float _cannonLength;
 		
 		private Vector3? _predictedPosition;
+		private Vector3 ProjectileDeparturePosition => shootPoint.position + shootPoint.forward * _cannonLength;
 
 		protected override void Initialize()
 		{
@@ -31,10 +32,10 @@ namespace Gameplay.Towers.CannonTower
 			_predictedPosition = CalculatePredictedShootPosition(target);
 			
 			var adjustedPredictedPosition = _predictedPosition.Value;
-			adjustedPredictedPosition.y = shootPoint.position.y;
+			adjustedPredictedPosition.y = ProjectileDeparturePosition.y;
 
 			var angleBetweenCannonAndTarget =
-				Vector3.Angle(adjustedPredictedPosition - shootPoint.position, shootPoint.forward);
+				Vector3.Angle(adjustedPredictedPosition - ProjectileDeparturePosition, shootPoint.forward);
 
 			RotateTo(_predictedPosition.Value);
 
@@ -48,10 +49,10 @@ namespace Gameplay.Towers.CannonTower
 			var projectileSpeed = projectilePrefab.Speed;
 			var targetSpeed = target.Speed;
 
-			var deltaY = shootPoint.position.y - target.Position.y;
-			var deltaX = shootPoint.position.x - target.Position.x;
+			var deltaY = ProjectileDeparturePosition.y - target.Position.y;
+			var deltaX = ProjectileDeparturePosition.x - target.Position.x;
 
-			var shootingAngle = Vector3.Angle(-shootPoint.up, target.Position - shootPoint.position);
+			var shootingAngle = Vector3.Angle(-shootPoint.up, target.Position - ProjectileDeparturePosition);
 
 			var sin = Mathf.Sin(shootingAngle * Mathf.Deg2Rad);
 			var cos = Mathf.Cos(shootingAngle * Mathf.Deg2Rad);
@@ -68,8 +69,7 @@ namespace Gameplay.Towers.CannonTower
 
 		private void RotateTo(Vector3 position)
 		{
-			var targetPosition = position;
-			var direction = (targetPosition - transform.position).normalized;
+			var direction = (position - transform.position).normalized;
 			
 			direction.y = 0;
 

@@ -47,16 +47,17 @@ namespace Gameplay.Projectiles
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.TryGetComponent(out ITarget target))
+            if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
+            {
+                Destroy();
                 return;
+            }
 
-            target.ApplyDamage(_damage);
-            Destroy();
-        }
-
-        private void Initialize()
-        {
-            
+            if (other.TryGetComponent(out ITarget target))
+            {
+                target.ApplyDamage(_damage);
+                Destroy();   
+            }
         }
         
         private void Destroy()
