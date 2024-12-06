@@ -10,14 +10,14 @@ namespace Gameplay.System.EnemySpawn
     {
         [SerializeField] private EnemySpawnerData _data;
         [SerializeField] private Transform _spawnPoint;
-        [SerializeField] private Transform _moveTarget;
+        [SerializeField] private PointsRoute _route;
         
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterEntryPoint<EnemySpawner>()
                 .WithParameter("data", _data)
                 .WithParameter("spawnPoint", _spawnPoint)
-                .WithParameter("moveTarget", _moveTarget);
+                .WithParameter("route", _route);
         }
     }
 }

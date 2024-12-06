@@ -1,4 +1,6 @@
-﻿using Gameplay.System.Scene;
+﻿using System.Collections.Generic;
+using Gameplay.System.EnemySpawn;
+using Gameplay.System.Scene;
 using Infrastructure;
 using R3;
 using UnityEngine;
@@ -15,8 +17,10 @@ namespace Gameplay.Targets.Monster
 		[SerializeField] private float _reachDistance;
 
 		private readonly Subject<Unit> _died = new();
-		private Vector3 _moveTargetPosition;
+		private PointsRoute _route;
 		private int _currentHealth;
+
+		private IEnumerator<Transform> _enumerator;
 
 		public Vector3 Position
 		{
@@ -29,9 +33,12 @@ namespace Gameplay.Targets.Monster
 		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
 		
-		public void SetMoveTarget(Vector3 moveTargetPosition)
+		public void SetRoute(PointsRoute route)
 		{
-			_moveTargetPosition = moveTargetPosition;
+			_route = route;
+			
+			_enumerator = route.Enumerator;
+			_enumerator.MoveNext();
 		}
 		
 		public void ApplyDamage(int damage)
@@ -57,15 +64,27 @@ namespace Gameplay.Targets.Monster
 			Initialize();
 		}
 		
-		private void Update () 
+		private void Update ()
 		{
-			if (Vector3.Distance (_bottomPoint.position, _moveTargetPosition) <= _reachDistance) 
+			if (_enumerator.Current == null)
 			{
+				Debug.LogError("Enumerator Current is null");
 				Die();
 				return;
 			}
+			
+			if (Vector3.Distance (_bottomPoint.position, _enumerator.Current.position) <= _reachDistance)
+			{
+				if (!_enumerator.MoveNext())
+				{
+					Die();
+					return;
+				}
 
-			var direction = (_moveTargetPosition - _bottomPoint.position).normalized;
+				transform.rotation = _enumerator.Current.rotation;
+			}
+
+			var direction = ( _enumerator.Current.position - _bottomPoint.position).normalized;
 			var translation = direction * (_speed * Time.deltaTime);
 		
 			transform.Translate(translation, Space.World);

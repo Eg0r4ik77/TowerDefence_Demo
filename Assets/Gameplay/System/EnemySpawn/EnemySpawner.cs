@@ -14,7 +14,7 @@ namespace Gameplay.System.EnemySpawn
 	{
 		private readonly EnemySpawnerData _data;
 		private readonly Transform _spawnPoint;
-		private readonly Transform _moveTarget;
+		private readonly PointsRoute _route;
 		private readonly ISceneContext _sceneContext;
 		
 		private float _interval;
@@ -25,11 +25,11 @@ namespace Gameplay.System.EnemySpawn
 		private IDisposable _spawnDisposable;
 		
 		[Inject]
-		public EnemySpawner(EnemySpawnerData data, Transform spawnPoint, Transform moveTarget ,ISceneContext sceneContext)
+		public EnemySpawner(EnemySpawnerData data, Transform spawnPoint, PointsRoute route ,ISceneContext sceneContext)
 		{
 			_data = data;
 			_spawnPoint = spawnPoint;
-			_moveTarget = moveTarget;
+			_route = route;
 			_sceneContext = sceneContext;
 		}
 
@@ -62,7 +62,7 @@ namespace Gameplay.System.EnemySpawn
 			var monster = SpawnEnemy(_monsterPool);
 
 			monster.transform.rotation = _spawnPoint.rotation;
-			monster.SetMoveTarget(_moveTarget.position);
+			monster.SetRoute(_route);
 			
 			_sceneContext.RegisterEntity(monster);
 		}
