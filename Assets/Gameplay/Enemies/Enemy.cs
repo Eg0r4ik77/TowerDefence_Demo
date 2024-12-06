@@ -7,7 +7,7 @@ using Infrastructure;
 using R3;
 using UnityEngine;
 
-namespace Gameplay.Targets.Monster
+namespace Gameplay.Enemies
 {
 	public class Enemy : MonoBehaviour, ITarget, IPoolObject
 	{

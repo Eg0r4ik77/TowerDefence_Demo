@@ -1,4 +1,4 @@
-using Gameplay.Targets.Monster;
+using Gameplay.Enemies.Monster;
 using UnityEngine;
 
 namespace Gameplay.System.EnemySpawn

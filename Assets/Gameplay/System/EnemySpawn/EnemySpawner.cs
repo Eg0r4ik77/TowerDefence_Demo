@@ -1,6 +1,7 @@
 ﻿using System;
+using Gameplay.Enemies;
+using Gameplay.Enemies.Monster;
 using Gameplay.System.Scene;
-using Gameplay.Targets.Monster;
 using Infrastructure;
 using R3;
 using UnityEngine;
