@@ -1,7 +1,7 @@
 using Gameplay.System.Scene;
 using UnityEngine;
 
-namespace Gameplay.Targets
+namespace Gameplay.Enemies
 {
     public interface ITarget : ISceneEntity
     {

@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace Gameplay.Targets.Monster
+namespace Gameplay.Enemies
 {
-    [CreateAssetMenu(menuName = "Data/Gameplay/Moster", fileName = "Monster")]
-    public class MonsterData : ScriptableObject
+    [CreateAssetMenu(menuName = "Data/Gameplay/Enemies/Base", fileName = "Enemy")]
+    public class EnemyData : ScriptableObject
     {
         [field: SerializeField] public float Speed { get; private set; }
         [field: SerializeField] public int MaxHealth { get; private set; }

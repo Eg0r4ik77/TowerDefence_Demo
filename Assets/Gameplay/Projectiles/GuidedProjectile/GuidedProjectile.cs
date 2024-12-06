@@ -1,4 +1,4 @@
-﻿using Gameplay.Targets;
+﻿using Gameplay.Enemies;
 using UnityEngine;
 
 namespace Gameplay.Projectiles.GuidedProjectile

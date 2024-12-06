@@ -1,5 +1,5 @@
 using System;
-using Gameplay.Targets;
+using Gameplay.Enemies;
 using Infrastructure;
 using R3;
 using UnityEngine;

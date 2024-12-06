@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Gameplay.Enemies;
 using Gameplay.System.Scene;
-using Gameplay.Targets;
 using R3;
 using UnityEngine;
 using VContainer;

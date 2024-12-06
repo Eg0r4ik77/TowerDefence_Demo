@@ -1,6 +1,5 @@
 ﻿using System;
 using Gameplay.System.Scene;
-using Gameplay.Targets;
 using Gameplay.Targets.Monster;
 using Infrastructure;
 using R3;
@@ -59,22 +58,19 @@ namespace Gameplay.System.EnemySpawn
 		
 		private void SpawnMonster()
 		{
-			var monster = SpawnEnemy(_monsterPool);
-
-			monster.transform.rotation = _spawnPoint.rotation;
-			monster.InitRoute(_route);
-			
-			_sceneContext.RegisterEntity(monster);
+			SpawnEnemy(_monsterPool);
 		}
 		
-		private T SpawnEnemy<T>(Pool<T> pool) where T : Component, IPoolObject, ITarget
+		private void SpawnEnemy<T>(Pool<T> pool) where T : Enemy, IPoolObject
 		{
-			ITarget enemy = pool.Get();
+			var enemy = pool.Get();
 
 			enemy.Position = _spawnPoint.position;
 			enemy.SceneContext = _sceneContext;
+			enemy.transform.rotation = _spawnPoint.rotation;
+			enemy.InitRoute(_route);
 			
-			return (T)enemy;
+			_sceneContext.RegisterEntity(enemy);
 		}
 	}
 }

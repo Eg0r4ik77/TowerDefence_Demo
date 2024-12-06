@@ -9,9 +9,9 @@ using UnityEngine;
 
 namespace Gameplay.Targets.Monster
 {
-	public class Monster : MonoBehaviour, ITarget, IPoolObject
+	public class Enemy : MonoBehaviour, ITarget, IPoolObject
 	{
-		[SerializeField] private MonsterData _data;
+		[SerializeField] private EnemyData _data;
 		[SerializeField] private Transform _bottomPoint;
 		
 		[SerializeField] private float _speed;

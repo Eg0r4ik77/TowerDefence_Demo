@@ -1,5 +1,5 @@
+using Gameplay.Enemies;
 using Gameplay.Projectiles;
-using Gameplay.Targets;
 using Infrastructure;
 
 namespace Gameplay.Towers

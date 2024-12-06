@@ -1,5 +1,5 @@
-﻿using Gameplay.Projectiles.GuidedProjectile;
-using Gameplay.Targets;
+﻿using Gameplay.Enemies;
+using Gameplay.Projectiles.GuidedProjectile;
 using UnityEngine;
 
 namespace Gameplay.Towers.SimpleTower

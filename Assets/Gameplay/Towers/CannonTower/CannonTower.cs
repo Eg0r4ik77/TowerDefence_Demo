@@ -1,5 +1,5 @@
-﻿using Gameplay.Projectiles.CannonProjectile;
-using Gameplay.Targets;
+﻿using Gameplay.Enemies;
+using Gameplay.Projectiles.CannonProjectile;
 using UnityEngine;
 
 namespace Gameplay.Towers.CannonTower
