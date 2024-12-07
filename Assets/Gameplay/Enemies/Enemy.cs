@@ -20,6 +20,7 @@ namespace Gameplay.Enemies
 		[SerializeField] private float _reachDistance;
 
 		private IEnumerator<Transform> _routeEnumerator;
+		private ISceneContext _sceneContext;
 		
 		private readonly Subject<Unit> _died = new();
 		private readonly Subject<Unit> _damaged = new();
@@ -39,9 +40,13 @@ namespace Gameplay.Enemies
 		public Vector3 Forward => transform.forward;
 		public float Speed => _speed;
 		public float Health => _currentHealth;
-		public ISceneContext SceneContext { get; set; }
 		public Observable<Unit> Released => _died;
 		public Observable<Unit> Damaged => _damaged;
+
+		public void SetSceneContext(ISceneContext sceneContext)
+		{
+			_sceneContext = sceneContext;
+		}
 		
 		public void InitRoute(PointsRoute route)
 		{
@@ -119,7 +124,7 @@ namespace Gameplay.Enemies
 
 		private void Die()
 		{
-			SceneContext.UnregisterEntity(this);
+			_sceneContext.UnregisterEntity(this);
 			_died.OnNext(Unit.Default);	
 		}
 

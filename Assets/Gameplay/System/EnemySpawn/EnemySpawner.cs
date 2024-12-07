@@ -67,7 +67,7 @@ namespace Gameplay.System.EnemySpawn
 			var enemy = pool.Get();
 
 			enemy.Position = _spawnPoint.position;
-			enemy.SceneContext = _sceneContext;
+			enemy.SetSceneContext(_sceneContext);
 			enemy.transform.rotation = _spawnPoint.rotation;
 			enemy.InitRoute(_route);
 			
