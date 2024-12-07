@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Gameplay.Enemies;
@@ -82,17 +83,12 @@ namespace Gameplay.Towers
         
         private void CheckForTarget()
         {
-            shootTarget = null;
             var sceneTargets = _sceneContext.GetEntities<ITarget>();
             
-            foreach (var monster in sceneTargets)
-            {
-                if (monster != null && Vector3.Distance(transform.position, monster.Position) <= range)
-                {
-                    shootTarget = monster;
-                    return;
-                }
-            }
+            shootTarget = sceneTargets
+                .Where(monster => monster != null && Vector3.Distance(transform.position, monster.Position) <= range)
+                .OrderBy(monster => Vector3.Distance(transform.position, monster.Position))
+                .FirstOrDefault();
         }
 
         private void OnDestroy()
